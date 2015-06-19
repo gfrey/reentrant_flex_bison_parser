@@ -11,7 +11,6 @@ new_list_node()
 	node->length = 0;
 	node->capacity = 16;
 	node->list = (ast_node_sexp **) malloc(16*sizeof(ast_node_sexp *));
-	printf("--> creating new list node\n");
 	return node;
 }
 
@@ -44,7 +43,7 @@ new_number_node(long v)
 }
 
 struct ast_node_identifier *
-new_identifier_node(char *v)
+new_identifier_node(const char *v)
 {
 	struct ast_node_identifier *res = (struct ast_node_identifier *) malloc(sizeof(struct ast_node_identifier));
 	res->value = (char *) malloc(strlen(v));
@@ -53,7 +52,7 @@ new_identifier_node(char *v)
 }
 
 struct ast_node_string *
-new_string_node(char *v)
+new_string_node(const char *v)
 {
 	struct ast_node_string *res = (struct ast_node_string *) malloc(sizeof(struct ast_node_string));
 	res->value = (char *) malloc(strlen(v));
@@ -68,9 +67,9 @@ new_atom_node(enum atom_types type, void *v)
 	node->type = type;
 	switch (type) {
 		case AT_IDENTIFIER:
-			node->value.identifier = new_identifier_node((char *) v);
+			node->value.identifier = new_identifier_node((const char *) v);
 		case AT_STRING:
-			node->value.string = new_string_node((char *) v);
+			node->value.string = new_string_node((const char *) v);
 		case AT_NUMBER:
 			node->value.number = new_number_node(*((long *) v));
 	}
@@ -80,15 +79,11 @@ new_atom_node(enum atom_types type, void *v)
 void
 print_node_atom(ast_node_atom *node)
 {
-	printf("--> node type: %d %d\n", node->type, AT_NUMBER);
 	if (node->type == AT_IDENTIFIER) {
-		printf("identifier\n");
 		printf("identifier node: %s\n", node->value.identifier->value);
 	} else if (node->type == AT_STRING) {
-		printf("string\n");
 		printf("string node: %s\n", node->value.string->value);
 	} else if (node->type == AT_NUMBER) {
-		printf("number\n");
 		printf("number node: %ld\n", node->value.number->value);
 	} else {
 		printf("unknown atom node");
@@ -114,7 +109,7 @@ void
 print_node_sexp(ast_node_sexp *node)
 {
 	if (node->type == ST_ATOM) {
-		printf("node is an atom\n");
+		printf("node is an atom: ");
 		print_node_atom(node->value.atom);
 	} else if (node->type == ST_LIST) {
 		printf("node is a list\n");

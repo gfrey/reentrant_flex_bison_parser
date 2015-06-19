@@ -19,7 +19,7 @@ string \"[^\"\n]*\"
 
 {int}      { yylval->NUMBER = atol(yytext); return NUMBER; }
 
-{id}       { yylval->STRING = yytext; return IDENTIFIER; }
-{string}   { yylval->IDENTIFIER = yytext; return STRING; }
+{id}       { yylval->IDENTIFIER = yytext; return IDENTIFIER; }
+{string}   { yylval->STRING = yytext; return STRING; }
 
 <<EOF>>    return TOK_EOF;

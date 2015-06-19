@@ -3,7 +3,7 @@
 CC := clang
 CFLAGS := -g
 
-run: parser.tab.o lex.yy.o ast.o main.o
+run: parser.tab.o lex.yy.o ast.o module.o main.o
 	$(CC) -g -o $@ $+
 
 clean:

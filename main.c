@@ -1,17 +1,22 @@
-#include "parser.tab.h"
-#include "scanner.h"
-#include "ast.h"
+#include "module.h"
 
-int main() {
-    ast_node_sexp *root;
-	yyscan_t myscanner;
-	int res;
+int
+main(int argc, char **argv) 
+{
+	module *mod;
+	int i, res;
 
-	yylex_init(&myscanner);
-	res = yyparse(myscanner, &root);
-	yylex_destroy(myscanner);
+	if (argc == 1) {
+		mod = new_module_from_stdin();
+		return parse_module(mod);
+	}
 
-	print_node_sexp(root);
-
-	return res;
+	for (i = 1; i < argc; i++) {
+		mod = new_module_from_file(argv[i]);
+		res = parse_module(mod);
+		if (res != 0 ) {
+			return res;
+		}
+	}
+	return 0;
 }

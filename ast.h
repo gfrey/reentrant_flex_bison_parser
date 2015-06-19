@@ -9,12 +9,12 @@ struct ast_node_number *new_number_node(long v);
 struct ast_node_string {
 	char *value;
 };
-struct ast_node_string *new_string_node(char *v);
+struct ast_node_string *new_string_node(const char *v);
 
 struct ast_node_identifier {
 	char *value;
 };
-struct ast_node_identifier *new_identifier_node(char *v);
+struct ast_node_identifier *new_identifier_node(const char *v);
 
 enum atom_types { AT_NUMBER, AT_STRING, AT_IDENTIFIER };
 
