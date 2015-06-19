@@ -6,6 +6,9 @@ main(int argc, char **argv)
 	module *mod;
 	int i, res;
 
+	mod = new_module_from_string("(add 1 2 \"test\")");
+	return parse_module(mod);
+
 	if (argc == 1) {
 		mod = new_module_from_stdin();
 		return parse_module(mod);

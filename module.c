@@ -18,6 +18,15 @@ new_module_from_file(const char *filename)
 	return mod;
 }
 
+module *
+new_module_from_string(char *src)
+{
+	module *mod = (module *) malloc(sizeof(module));
+	mod->src = fmemopen(src, strlen(src), "r");
+	return mod;
+}
+
+
 int
 parse_module(module *mod)
 {

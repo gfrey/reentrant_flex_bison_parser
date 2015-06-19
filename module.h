@@ -11,6 +11,7 @@ typedef struct {
 
 module *new_module_from_stdin();
 module *new_module_from_file(const char *filename);
+module *new_module_from_string(char *src);
 
 int parse_module(module *mod);
 
