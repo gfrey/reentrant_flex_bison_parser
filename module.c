@@ -22,10 +22,19 @@ module *
 new_module_from_string(char *src)
 {
 	module *mod = (module *) malloc(sizeof(module));
-	mod->src = fmemopen(src, strlen(src), "r");
+	mod->src = fmemopen(src, strlen(src)+1, "r");
 	return mod;
 }
 
+void
+delete_module(module *mod)
+{
+	if (mod->root != NULL) {
+		delete_sexp_node(mod->root);
+	}
+	fclose(mod->src);
+	free(mod);
+}
 
 int
 parse_module(module *mod)

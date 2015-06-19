@@ -5,16 +5,19 @@ typedef struct {
 	long value;
 } ast_node_number;
 ast_node_number *new_number_node(long v);
+void delete_number_node(ast_node_number *node);
 
 typedef struct {
 	char *value;
 } ast_node_string;
 ast_node_string *new_string_node(const char *v);
+void delete_string_node(ast_node_string *node);
 
 typedef struct {
 	char *value;
 } ast_node_identifier;
 ast_node_identifier *new_identifier_node(const char *v);
+void delete_identifier_node(ast_node_identifier *node);
 
 enum atom_types { AT_NUMBER, AT_STRING, AT_IDENTIFIER };
 
@@ -28,6 +31,7 @@ typedef struct {
 } ast_node_atom;
 
 ast_node_atom *new_atom_node(enum atom_types type, void *v);
+void delete_atom_node(ast_node_atom *node);
 void print_node_atom(ast_node_atom *node);
 
 struct _ast_node_sexp;
@@ -40,6 +44,7 @@ typedef struct {
 } ast_node_list;
 
 ast_node_list *new_list_node();
+void delete_list_node(ast_node_list *node);
 void print_node_list(ast_node_list *node);
 void add_node_to_list(ast_node_list *list, ast_node_sexp *node);
 
@@ -53,5 +58,6 @@ struct _ast_node_sexp {
 };
 void print_node_sexp(ast_node_sexp *node);
 ast_node_sexp *new_sexp_node(enum sexp_types type, void *v);
+void delete_sexp_node(ast_node_sexp *node);
 
 #endif // __AST_H

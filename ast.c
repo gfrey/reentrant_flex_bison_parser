@@ -15,6 +15,17 @@ new_list_node()
 }
 
 void
+delete_list_node(ast_node_list *node)
+{
+	int i;
+	for (i = 0; i < node->length; i++) {
+		delete_sexp_node(node->list[i]);
+	}
+	free(node->list);
+	free(node);
+}
+
+void
 add_node_to_list(ast_node_list *list, ast_node_sexp *node)
 {
 	if (list->length == list->capacity) {
@@ -42,22 +53,42 @@ new_number_node(long v)
 	return res;
 }
 
+void
+delete_number_node(ast_node_number *node)
+{
+	free(node);
+}
+
 ast_node_identifier *
 new_identifier_node(const char *v)
 {
-	ast_node_identifier *res = (ast_node_identifier *) malloc(sizeof(ast_node_identifier));
-	char *dest = (char *) malloc(strlen(v));
-	res->value = strcpy(dest, v);
-	return res;
+	ast_node_identifier *node = (ast_node_identifier *) malloc(sizeof(ast_node_identifier));
+	node->value = (char *) malloc(strlen(v)+1);
+	strcpy(node->value, v);
+	return node;
+}
+
+void
+delete_identifier_node(ast_node_identifier *node)
+{
+	free(node->value);
+	free(node);
 }
 
 ast_node_string *
 new_string_node(const char *v)
 {
-	ast_node_string *res = (ast_node_string *) malloc(sizeof(ast_node_string));
-	char *dest = (char *) malloc(strlen(v));
-	res->value = strcpy(dest, v);
-	return res;
+	ast_node_string *node = (ast_node_string *) malloc(sizeof(ast_node_string));
+	node->value = (char *) malloc(strlen(v)+1);
+	strcpy(node->value, v);
+	return node;
+}
+
+void
+delete_string_node(ast_node_string *node)
+{
+	free(node->value);
+	free(node);
 }
 
 ast_node_atom *
@@ -77,6 +108,23 @@ new_atom_node(enum atom_types type, void *v)
 			break;
 	}
 	return node;
+}
+
+void
+delete_atom_node(ast_node_atom *node)
+{
+	switch (node->type) {
+		case AT_IDENTIFIER:
+			delete_identifier_node(node->value.identifier);
+			break;
+		case AT_STRING:
+			delete_string_node(node->value.string);
+			break;
+		case AT_NUMBER:
+			delete_number_node(node->value.number);
+			break;
+	}
+	free(node);
 }
 
 void
@@ -108,6 +156,20 @@ new_sexp_node(enum sexp_types type, void *v)
 			break;
 	}
 	return node;
+}
+
+void
+delete_sexp_node(ast_node_sexp *node)
+{
+	switch (node->type) {
+		case ST_ATOM:
+			delete_atom_node(node->value.atom);
+			break;
+		case ST_LIST:
+			delete_list_node(node->value.list);
+			break;
+	}
+	free(node);
 }
 
 void
