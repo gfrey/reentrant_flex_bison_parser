@@ -1,10 +1,13 @@
-.PHONY: clean
+.PHONY: clean mem
 
 CC := clang
 CFLAGS := -g
 
 run: parser.tab.o lex.yy.o ast.o module.o main.o
 	$(CC) -g -o $@ $+
+
+mem:
+	valgrind --leak-check=full ./run
 
 clean:
 	rm -f run *.o lex.yy.c parser.tab* scanner.h
