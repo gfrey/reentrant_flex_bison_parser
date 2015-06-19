@@ -1,6 +1,9 @@
 %define api.pure full
 %lex-param {void *scanner}
-%parse-param {void *scanner}
+%parse-param {void *scanner}{ast_node_sexp *node}
+
+%define parse.trace
+%define parse.error verbose
 
 %{
 #include <stdio.h>
@@ -8,45 +11,52 @@
 #include "parser.tab.h"
 #include "scanner.h"
 
-void yyerror (yyscan_t *locp, char const *msg);
+void yyerror (yyscan_t *locp, ast_node_sexp *node, char const *msg);
 %}
 
+%code requires
+{
+#include "ast.h"
+}
+
 %define api.value.type union /* Generate YYSTYPE from these types:  */
-%token <struct ast_node_number*>     NUMBER     "number"
-%token <struct ast_node_string*>     STRING     "string"
-%token <struct ast_node_identifier*> IDENTIFIER "identifier"
+%token <long>     NUMBER     "number"
+%token <char *>   STRING     "string"
+%token <char *>   IDENTIFIER "identifier"
 
-%token TEOF 0 "end of file"
-%token LPAREN "("
-%token RPAREN ")"
+%token TOK_EOF 0 "end of file"
+%token TOK_LPAREN "("
+%token TOK_RPAREN ")"
 
-%type <union ast_node_sexp*> sexp
-%type <union ast_node_atom*> atom
+%type <ast_node_sexp*> sexp
+%type <ast_node_atom*> atom
 %type <struct ast_node_list*> list
 
 %%
-%start sexps;
-
-sexps:
-  %empty                {}
-| sexp                  {}
+%start sexp;
 
 sexp:
-  atom                  {}
-| "(" list ")"          {};
+  atom                  { node->type = ST_ATOM; node->value.atom = $1; }
+| "(" list ")"          { node->type = ST_LIST; node->value.list = $2; };
 
 list:
-  %empty                {}
-| sexp list             {};
+  %empty                { $$ = new_list_node(); }
+| list sexp             { $$ = $1; add_node_to_list($$, $2); };
 
 atom:
-  "number"              {}
-| "identifier"          {}
-| "string"              {};
+  "number"              { $$ = new_atom_node();
+                          $$->type = AT_NUMBER;
+                          $$->value.number = new_number_node($1); }
+| "identifier"          { $$ = new_atom_node();
+                          $$->type = AT_IDENTIFIER;
+                          $$->value.identifier = new_identifier_node($1); }
+| "string"              { $$ = new_atom_node();
+                          $$->type = AT_STRING;
+                          $$->value.string = new_string_node($1); };
 
 %%
 
-void yyerror (yyscan_t *locp, char const *msg) {
-	fprintf(stderr, "%s\n", msg);
+void yyerror (yyscan_t *locp, ast_node_sexp *node, char const *msg) {
+	fprintf(stderr, "--> %s\n", msg);
 }
 

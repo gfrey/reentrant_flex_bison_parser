@@ -4,7 +4,7 @@
 
 %option reentrant bison-bridge noyywrap
 
-id     [+\-\*/]|([a-zA-Z][a-zA-Z_0-9]*)
+id     [a-zA-Z][a-zA-Z_0-9]*
 int    [0-9]+
 blank  [ \t]
 string \"[^\"\n]*\"
@@ -14,11 +14,12 @@ string \"[^\"\n]*\"
 {blank}+   ;
 [\n]+      ;
 
-"("        return LPAREN;
-")"        return RPAREN;
+"("        return TOK_LPAREN;
+")"        return TOK_RPAREN;
 
-{int}      return NUMBER;
+{int}      { yylval->NUMBER = atol(yytext); return NUMBER; }
 
-{id}       return IDENTIFIER;
-{string}   return STRING;
-<<EOF>>    return TEOF;
+{id}       { yylval->STRING = yytext; return IDENTIFIER; }
+{string}   { yylval->IDENTIFIER = yytext; return STRING; }
+
+<<EOF>>    return TOK_EOF;

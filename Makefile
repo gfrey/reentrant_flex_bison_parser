@@ -1,9 +1,10 @@
 .PHONY: clean
 
 CC := clang
+CFLAGS := -g
 
-run: parser.tab.o lex.yy.o main.o
-	$(CC) -o $@ $+
+run: parser.tab.o lex.yy.o ast.o main.o
+	$(CC) -g -o $@ $+
 
 clean:
 	rm -f run *.o lex.yy.c parser.tab* scanner.h
