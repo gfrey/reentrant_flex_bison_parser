@@ -34,27 +34,27 @@ print_node_list(ast_node_list *node)
 	}
 }
 
-struct ast_node_number *
+ast_node_number *
 new_number_node(long v)
 {
-	struct ast_node_number *res = (struct ast_node_number *) malloc(sizeof(struct ast_node_number));
+	ast_node_number *res = (ast_node_number *) malloc(sizeof(ast_node_number));
 	res->value = v;
 	return res;
 }
 
-struct ast_node_identifier *
+ast_node_identifier *
 new_identifier_node(const char *v)
 {
-	struct ast_node_identifier *res = (struct ast_node_identifier *) malloc(sizeof(struct ast_node_identifier));
+	ast_node_identifier *res = (ast_node_identifier *) malloc(sizeof(ast_node_identifier));
 	char *dest = (char *) malloc(strlen(v));
 	res->value = strcpy(dest, v);
 	return res;
 }
 
-struct ast_node_string *
+ast_node_string *
 new_string_node(const char *v)
 {
-	struct ast_node_string *res = (struct ast_node_string *) malloc(sizeof(struct ast_node_string));
+	ast_node_string *res = (ast_node_string *) malloc(sizeof(ast_node_string));
 	char *dest = (char *) malloc(strlen(v));
 	res->value = strcpy(dest, v);
 	return res;
