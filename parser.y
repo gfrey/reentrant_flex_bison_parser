@@ -1,6 +1,6 @@
 %define api.pure full
 %lex-param {void *scanner}
-%parse-param {void *scanner}{ast_node_sexp *node}
+%parse-param {void *scanner}{ast_node_sexp **node}
 
 %define parse.trace
 %define parse.error verbose
@@ -11,7 +11,7 @@
 #include "parser.tab.h"
 #include "scanner.h"
 
-void yyerror (yyscan_t *locp, ast_node_sexp *node, char const *msg);
+void yyerror (yyscan_t *locp, ast_node_sexp **node, char const *msg);
 %}
 
 %code requires
@@ -33,30 +33,27 @@ void yyerror (yyscan_t *locp, ast_node_sexp *node, char const *msg);
 %type <struct ast_node_list*> list
 
 %%
-%start sexp;
+%start sexps;
+
+sexps:
+	sexp        { *node = $1; }
 
 sexp:
-  atom                  { node->type = ST_ATOM; node->value.atom = $1; }
-| "(" list ")"          { node->type = ST_LIST; node->value.list = $2; };
+  atom          { $$ = new_sexp_node(ST_ATOM, $1); }
+| "(" list ")"  { $$ = new_sexp_node(ST_LIST, $2); };
 
 list:
-  %empty                { $$ = new_list_node(); }
-| list sexp             { $$ = $1; add_node_to_list($$, $2); };
+  %empty        { $$ = new_list_node(); }
+| list sexp     { $$ = $1; add_node_to_list($$, $2); };
 
 atom:
-  "number"              { $$ = new_atom_node();
-                          $$->type = AT_NUMBER;
-                          $$->value.number = new_number_node($1); }
-| "identifier"          { $$ = new_atom_node();
-                          $$->type = AT_IDENTIFIER;
-                          $$->value.identifier = new_identifier_node($1); }
-| "string"              { $$ = new_atom_node();
-                          $$->type = AT_STRING;
-                          $$->value.string = new_string_node($1); };
+  "number"      { $$ = new_atom_node(AT_NUMBER, (void *)(&$1)); }
+| "identifier"  { $$ = new_atom_node(AT_IDENTIFIER, (void *)(&$1)); }
+| "string"      { $$ = new_atom_node(AT_STRING, (void *)(&$1)); };
 
 %%
 
-void yyerror (yyscan_t *locp, ast_node_sexp *node, char const *msg) {
+void yyerror (yyscan_t *locp, ast_node_sexp **node, char const *msg) {
 	fprintf(stderr, "--> %s\n", msg);
 }
 

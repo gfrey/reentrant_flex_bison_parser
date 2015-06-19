@@ -4,10 +4,10 @@
 
 #include "ast.h"
 
-struct ast_node_list *
+ast_node_list *
 new_list_node()
 {
-	struct ast_node_list *node = (struct ast_node_list *) malloc(sizeof(struct ast_node_list));
+	ast_node_list *node = (ast_node_list *) malloc(sizeof(ast_node_list));
 	node->length = 0;
 	node->capacity = 16;
 	node->list = (ast_node_sexp **) malloc(16*sizeof(ast_node_sexp *));
@@ -16,12 +16,9 @@ new_list_node()
 }
 
 void
-add_node_to_list(struct ast_node_list *list, ast_node_sexp *node)
+add_node_to_list(ast_node_list *list, ast_node_sexp *node)
 {
-	printf("===> %d %d\n", list->length, list->capacity);
-	print_node_sexp(node);
-	printf("---------\n");
-   	if (list->length == list->capacity) {
+	if (list->length == list->capacity) {
 		// TODO should allocate some more space
 	}
 	list->list[list->length] = node;
@@ -29,7 +26,7 @@ add_node_to_list(struct ast_node_list *list, ast_node_sexp *node)
 }
 
 void
-print_node_list(struct ast_node_list *node)
+print_node_list(ast_node_list *node)
 {
 	int i = 0;
 	printf("list node with %d elements\n", node->length);
@@ -65,9 +62,19 @@ new_string_node(char *v)
 }
 
 ast_node_atom *
-new_atom_node()
+new_atom_node(enum atom_types type, void *v)
 {
-	return (ast_node_atom *) malloc(sizeof(ast_node_atom));
+	ast_node_atom *node = (ast_node_atom *) malloc(sizeof(ast_node_atom));
+	node->type = type;
+	switch (type) {
+		case AT_IDENTIFIER:
+			node->value.identifier = new_identifier_node((char *) v);
+		case AT_STRING:
+			node->value.string = new_string_node((char *) v);
+		case AT_NUMBER:
+			node->value.number = new_number_node(*((long *) v));
+	}
+	return node;
 }
 
 void
@@ -86,6 +93,21 @@ print_node_atom(ast_node_atom *node)
 	} else {
 		printf("unknown atom node");
 	}
+}
+
+ast_node_sexp *
+new_sexp_node(enum sexp_types type, void *v)
+{
+	ast_node_sexp *node = (ast_node_sexp *) malloc(sizeof(ast_node_sexp));
+
+	node->type = type;
+	switch (type) {
+		case ST_ATOM:
+			node->value.atom = (ast_node_atom *) v;
+		case ST_LIST:
+			node->value.list = (ast_node_list *) v;
+	}
+	return node;
 }
 
 void
