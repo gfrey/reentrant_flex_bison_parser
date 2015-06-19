@@ -46,8 +46,8 @@ struct ast_node_identifier *
 new_identifier_node(const char *v)
 {
 	struct ast_node_identifier *res = (struct ast_node_identifier *) malloc(sizeof(struct ast_node_identifier));
-	res->value = (char *) malloc(strlen(v));
-	strcpy(res->value, v);
+	char *dest = (char *) malloc(strlen(v));
+	res->value = strcpy(dest, v);
 	return res;
 }
 
@@ -55,8 +55,8 @@ struct ast_node_string *
 new_string_node(const char *v)
 {
 	struct ast_node_string *res = (struct ast_node_string *) malloc(sizeof(struct ast_node_string));
-	res->value = (char *) malloc(strlen(v));
-	strcpy(res->value, v);
+	char *dest = (char *) malloc(strlen(v));
+	res->value = strcpy(dest, v);
 	return res;
 }
 
@@ -68,10 +68,13 @@ new_atom_node(enum atom_types type, void *v)
 	switch (type) {
 		case AT_IDENTIFIER:
 			node->value.identifier = new_identifier_node((const char *) v);
+			break;
 		case AT_STRING:
 			node->value.string = new_string_node((const char *) v);
+			break;
 		case AT_NUMBER:
 			node->value.number = new_number_node(*((long *) v));
+			break;
 	}
 	return node;
 }
@@ -99,8 +102,10 @@ new_sexp_node(enum sexp_types type, void *v)
 	switch (type) {
 		case ST_ATOM:
 			node->value.atom = (ast_node_atom *) v;
+			break;
 		case ST_LIST:
 			node->value.list = (ast_node_list *) v;
+			break;
 	}
 	return node;
 }
