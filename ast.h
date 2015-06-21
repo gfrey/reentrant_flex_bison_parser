@@ -1,32 +1,14 @@
 #ifndef __AST_H
 #define __AST_H
 
-typedef struct {
-	long value;
-} ast_node_number;
-ast_node_number *new_number_node(long v);
-void delete_number_node(ast_node_number *node);
-
-typedef struct {
-	char *value;
-} ast_node_string;
-ast_node_string *new_string_node(const char *v);
-void delete_string_node(ast_node_string *node);
-
-typedef struct {
-	char *value;
-} ast_node_identifier;
-ast_node_identifier *new_identifier_node(const char *v);
-void delete_identifier_node(ast_node_identifier *node);
 
 enum atom_types { AT_NUMBER, AT_STRING, AT_IDENTIFIER };
 
 typedef struct {
 	enum atom_types type;
 	union {
-		ast_node_number     *number;
-		ast_node_string     *string;
-		ast_node_identifier *identifier;
+		long number;
+		char *string;
 	} value;
 } ast_node_atom;
 

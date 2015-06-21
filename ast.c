@@ -45,52 +45,6 @@ print_node_list(ast_node_list *node)
 	}
 }
 
-ast_node_number *
-new_number_node(long v)
-{
-	ast_node_number *res = (ast_node_number *) malloc(sizeof(ast_node_number));
-	res->value = v;
-	return res;
-}
-
-void
-delete_number_node(ast_node_number *node)
-{
-	free(node);
-}
-
-ast_node_identifier *
-new_identifier_node(const char *v)
-{
-	ast_node_identifier *node = (ast_node_identifier *) malloc(sizeof(ast_node_identifier));
-	node->value = (char *) malloc(strlen(v)+1);
-	strcpy(node->value, v);
-	return node;
-}
-
-void
-delete_identifier_node(ast_node_identifier *node)
-{
-	free(node->value);
-	free(node);
-}
-
-ast_node_string *
-new_string_node(const char *v)
-{
-	ast_node_string *node = (ast_node_string *) malloc(sizeof(ast_node_string));
-	node->value = (char *) malloc(strlen(v)+1);
-	strcpy(node->value, v);
-	return node;
-}
-
-void
-delete_string_node(ast_node_string *node)
-{
-	free(node->value);
-	free(node);
-}
-
 ast_node_atom *
 new_atom_node(enum atom_types type, void *v)
 {
@@ -98,13 +52,12 @@ new_atom_node(enum atom_types type, void *v)
 	node->type = type;
 	switch (type) {
 		case AT_IDENTIFIER:
-			node->value.identifier = new_identifier_node((const char *) v);
-			break;
 		case AT_STRING:
-			node->value.string = new_string_node((const char *) v);
+			node->value.string = (char *) malloc(strlen((char *) v)+1);
+			strcpy(node->value.string, (char *) v);
 			break;
 		case AT_NUMBER:
-			node->value.number = new_number_node(*((long *) v));
+			node->value.number = *((long *) v);
 			break;
 	}
 	return node;
@@ -115,13 +68,10 @@ delete_atom_node(ast_node_atom *node)
 {
 	switch (node->type) {
 		case AT_IDENTIFIER:
-			delete_identifier_node(node->value.identifier);
-			break;
 		case AT_STRING:
-			delete_string_node(node->value.string);
+			free(node->value.string);
 			break;
 		case AT_NUMBER:
-			delete_number_node(node->value.number);
 			break;
 	}
 	free(node);
@@ -131,11 +81,11 @@ void
 print_node_atom(ast_node_atom *node)
 {
 	if (node->type == AT_IDENTIFIER) {
-		printf("identifier node: %s\n", node->value.identifier->value);
+		printf("identifier node: %s\n", node->value.string);
 	} else if (node->type == AT_STRING) {
-		printf("string node: %s\n", node->value.string->value);
+		printf("string node: %s\n", node->value.string);
 	} else if (node->type == AT_NUMBER) {
-		printf("number node: %ld\n", node->value.number->value);
+		printf("number node: %ld\n", node->value.number);
 	} else {
 		printf("unknown atom node");
 	}
