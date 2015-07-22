@@ -41,6 +41,11 @@ following will compile and run the code:
 There is an additional target for running this through valgrind (use `make
 mem`) which helps to find memory leaks.
 
+Please note this requires bison version 3.0.2 at least (this introduced the
+union stuff). But there is a bug (fixed in version 3.0.3) that will create
+duplicate type entries in the parser's header file. Let the compiler guide you
+in which entries to delete. This is a dirty workaround, but sufficient.
+
 
 ## Resources
 
