@@ -15,6 +15,7 @@ main(int argc, char **argv)
 		mod = new_module_from_stdin();
 		res = parse_module(mod);
                 delete_module(mod);
+                printf("\n");
                 return res;
 	}
 

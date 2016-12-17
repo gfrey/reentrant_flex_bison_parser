@@ -1,4 +1,4 @@
-%option reentrant bison-bridge noyywrap
+%option reentrant bison-bridge
 
 %{
 #include <editline/readline.h>
@@ -19,20 +19,24 @@ string \"[^\"\n]*\"
 
 %%
 
-{blank}+   ;
-[\n\0]+      ;
+{blank}+ |
+[\n\0]+   {}
 
-"("        return TOK_LPAREN;
-")"        return TOK_RPAREN;
+"(" |
+")"        { return yytext[0]; }
 
 {int}      { yylval->NUMBER = atol(yytext); return NUMBER; }
 
 {id}       { yylval->IDENTIFIER = yytext; return IDENTIFIER; }
 {string}   { yylval->STRING = yytext; return STRING; }
 
-<<EOF>>    return TOK_EOF;
+<<EOF>>    { return TOK_EOF; }
 
 %%
+
+int yywrap() {
+    return 1;
+}
 
 size_t read_next(module *mod, char *buf, size_t max_size) {
       size_t ret;

@@ -10,10 +10,10 @@ module *
 new_module_from_stdin(const char *prompt)
 {
 	module *mod = (module *) malloc(sizeof(module));
-	mod->f = stdin;
-        mod->prompt = NULL;
-        //mod->f = NULL;
-        //mod->prompt = prompt;
+	//mod->f = stdin;
+        //mod->prompt = NULL;
+        mod->f = NULL;
+        mod->prompt = prompt;
         mod->avail = 0;
         mod->src = NULL;
 	return mod;
@@ -65,12 +65,10 @@ parse_module(module *mod)
         if(mod->f != NULL) {
             yyset_in(mod->f, sc);
         }
-	res = yyparse(sc, mod);
-	yylex_destroy(sc);
-
-	if (res == 0) {
-		print_node_sexp(mod->root);
-	}
+        while( (res = yyparse(sc, mod)) == 0) {
+            print_node_sexp(mod->root);
+        }
+        yylex_destroy(sc);
 
 	return res;
 }
