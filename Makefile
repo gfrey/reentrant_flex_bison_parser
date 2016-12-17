@@ -1,10 +1,11 @@
 .PHONY: clean mem
 
 CC := clang
-CFLAGS := -g
+CFLAGS := -g $(shell pkg-config --cflags libedit)
+LDFLAGS := $(shell pkg-config --libs libedit)
 
 run: parser.tab.o scanner.o ast.o module.o main.o
-	$(CC) -g -o $@ $+
+	$(CC) -g -o $@ $+ $(LDFLAGS)
 
 mem:
 	valgrind --leak-check=full ./run

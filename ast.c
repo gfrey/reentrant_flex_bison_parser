@@ -30,6 +30,8 @@ add_node_to_list(ast_node_list *list, ast_node_sexp *node)
 {
 	if (list->length == list->capacity) {
 		// TODO should allocate some more space
+                printf("Out of space.\n");
+                exit(1);
 	}
 	list->list[list->length] = node;
 	list->length++;

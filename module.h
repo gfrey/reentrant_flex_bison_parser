@@ -5,7 +5,10 @@
 #include "ast.h"
 
 typedef struct {
-	FILE          *src;
+        FILE *f;
+	char *src, *pos;
+        const char *prompt;
+        int avail;
 	ast_node_sexp *root;
 } module;
 
