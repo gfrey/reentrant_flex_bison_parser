@@ -9,8 +9,8 @@
 #include <stdio.h>
 #include "module.h"
 #include "ast.h"
-#include "parser.tab.h"
-#include "scanner.h"
+#include "my_parser.h"
+#include "my_scanner.h"
 
 void yyerror (yyscan_t *locp, module *mod, char const *msg);
 %}

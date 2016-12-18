@@ -3,8 +3,8 @@
 #include <stdlib.h>
 
 #include "module.h"
-#include "parser.tab.h"
-#include "scanner.h"
+#include "my_parser.h"
+#include "my_scanner.h"
 
 module *
 new_module_from_stdin(const char *prompt)
@@ -60,15 +60,15 @@ parse_module(module *mod)
 	yyscan_t sc;
 	int res;
 
-	yylex_init(&sc);
-        yyset_extra(mod, sc);
+	my_lex_init(&sc);
+        my_set_extra(mod, sc);
         if(mod->f != NULL) {
-            yyset_in(mod->f, sc);
+            my_set_in(mod->f, sc);
         }
-        while( (res = yyparse(sc, mod)) == 0) {
+        while( (res = my_parse(sc, mod)) == 0) {
             print_node_sexp(mod->root);
         }
-        yylex_destroy(sc);
+        my_lex_destroy(sc);
 
 	return res;
 }

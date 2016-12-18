@@ -2,7 +2,7 @@
 
 %{
 #include <editline/readline.h>
-#include "parser.tab.h"
+#include "my_parser.h"
 #include "module.h"
 
 #define YY_EXTRA_TYPE module *
