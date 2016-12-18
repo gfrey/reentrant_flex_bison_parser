@@ -1,4 +1,5 @@
 %option reentrant bison-bridge
+%option bison-locations yylineno
 
 %{
 #include <editline/readline.h>
@@ -6,10 +7,16 @@
 #include "module.h"
 
 #define YY_EXTRA_TYPE module *
+#define YY_USER_ACTION { yylloc->first_line = yylloc->last_line = yylineno; \
+                         yylloc->first_column = yycolumn; \
+                         yylloc->last_column = yycolumn + (int)yyleng - 1; \
+                         yycolumn += (int)yyleng; }
+
 #define YY_INPUT(buf,result,max_size) { \
     result = read_next(yyextra, buf, max_size); }
 
 size_t read_next(module *, char *, size_t);
+
 %}
 
 %x COMMENT
@@ -39,20 +46,20 @@ string \"([^"\\]|\\['"?\\abfnrtv]|\\[0-7]{1,3}|\\[Xx][0-9a-fA-F]+)*\"
 "(" |
 ")"        { return yytext[0]; }
 
-{oct}      { char *end; yylval->NUMBER = strtol(yytext, &end, 8);
+{oct}      { char *end; yylval->l = strtol(yytext, &end, 8);
              return NUMBER; }
-{int}      { char *end; yylval->NUMBER = strtol(yytext, &end, 10);
+{int}      { char *end; yylval->l = strtol(yytext, &end, 10);
              return NUMBER; }
-{hex}      { char *end; yylval->NUMBER = strtol(yytext+2, &end, 16);
+{hex}      { char *end; yylval->l = strtol(yytext+2, &end, 16);
              return NUMBER; }
 
 [0-9]*\.[0-9]+{EXP}?[flFL]? |
 [0-9]+{EXP}[flFL]? |
 0[Xx]([0-9a-fA-F]*\.[0-9a-fA-F]+|[0-9a-fA-F]+\.?)[Pp][-+]?[0-9]+[flFL]? {
-             yylval->NUMBER = 1; return NUMBER; }
+             yylval->l = 1; return NUMBER; }
 
-{id}       { yylval->IDENTIFIER = yytext; return IDENTIFIER; }
-{string}   { yylval->STRING = yytext; return STRING; }
+{id}       { yylval->str = yytext; return IDENTIFIER; }
+{string}   { yylval->str = yytext; return STRING; }
 
 <<EOF>>    { return TOK_EOF; }
 
@@ -65,7 +72,17 @@ string \"([^"\\]|\\['"?\\abfnrtv]|\\[0-7]{1,3}|\\[Xx][0-9a-fA-F]+)*\"
 %%
 
 int yywrap() {
-    return 1;
+	return 1;
+}
+
+ yyscan_t my_scanner_ctor(module *mod) {
+        yyscan_t sc;
+	struct yyguts_t *yyg = (struct yyguts_t*)sc;
+	yylex_init(&sc);
+        yyset_extra(mod, sc);
+        //yylineno = 1;
+        //yycolumn = 0;
+        return sc;
 }
 
 size_t read_next(module *mod, char *buf, size_t max_size) {
@@ -77,7 +94,7 @@ size_t read_next(module *mod, char *buf, size_t max_size) {
               mod->src = NULL;
           } 
 
-          mod->src = readline("> ");
+          mod->src = readline(mod->prompt);
           if(mod->src == NULL)
               return YY_NULL;
           mod->pos = mod->src;

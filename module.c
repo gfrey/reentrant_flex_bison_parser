@@ -6,12 +6,12 @@
 #include "my_parser.h"
 #include "my_scanner.h"
 
+yyscan_t my_scanner_ctor(module *mod);
+
 module *
 new_module_from_stdin(const char *prompt)
 {
 	module *mod = (module *) malloc(sizeof(module));
-	//mod->f = stdin;
-        //mod->prompt = NULL;
         mod->f = NULL;
         mod->prompt = prompt;
         mod->avail = 0;
@@ -20,10 +20,10 @@ new_module_from_stdin(const char *prompt)
 }
 
 module *
-new_module_from_file(const char *filename)
+new_module_from_file(FILE *f)
 {
 	module *mod = (module *) malloc(sizeof(module));
-	mod->f = fopen(filename, "r");
+	mod->f = f;
         mod->prompt = NULL;
         mod->src = NULL;
 	return mod;
@@ -48,8 +48,6 @@ delete_module(module *mod)
 	}
         if(mod->src != NULL) {
             free(mod->src);
-        } else if(mod->f != NULL) {
-            fclose(mod->f);
         }
 	free(mod);
 }
@@ -57,11 +55,9 @@ delete_module(module *mod)
 int
 parse_module(module *mod)
 {
-	yyscan_t sc;
 	int res;
+        yyscan_t sc = my_scanner_ctor(mod);
 
-	my_lex_init(&sc);
-        my_set_extra(mod, sc);
         if(mod->f != NULL) {
             my_set_in(mod->f, sc);
         }

@@ -1,8 +1,7 @@
 %define api.pure full
 %lex-param {void *scanner}
 %parse-param {void *scanner}{module *mod}
-
-%define parse.trace
+%locations
 %define parse.error verbose
 
 %{
@@ -12,7 +11,7 @@
 #include "my_parser.h"
 #include "my_scanner.h"
 
-void my_error(yyscan_t *locp, module *mod, char const *msg);
+void my_error(YYLTYPE *, yyscan_t *locp, module *mod, char const *msg);
 %}
 
 %code requires
@@ -21,16 +20,24 @@ void my_error(yyscan_t *locp, module *mod, char const *msg);
 #include "ast.h"
 }
 
-%define api.value.type union /* Generate YYSTYPE from these types:  */
-%token <long>           NUMBER
-%token <const char *>   STRING
-%token <const char *>   IDENTIFIER
+/* declare tokens */
+%token <l>     NUMBER
+%token <str>   STRING
+%token <str>   IDENTIFIER
 
 %token TOK_EOF
 
-%type <ast_node_sexp*> sexp
-%type <ast_node_atom*> atom
-%type <ast_node_list*> list
+%type <sexp> sexp
+%type <atom> atom
+%type <list> list
+
+%union {
+    long l;
+    const char *str;
+    ast_node_sexp *sexp;
+    ast_node_atom *atom;
+    ast_node_list *list;
+}
 
 %%
 %start sexps;
@@ -53,7 +60,7 @@ atom:
 
 %%
 
-void my_error(yyscan_t *locp, module *mod, char const *msg) {
+void my_error(YYLTYPE *llocp, yyscan_t *locp, module *mod, char const *msg) {
 	fprintf(stderr, "--> %s\n", msg);
 }
 

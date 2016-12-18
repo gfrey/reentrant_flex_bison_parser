@@ -12,7 +12,7 @@ main(int argc, char **argv)
 	return res;*/
 
 	if (argc == 1) {
-		mod = new_module_from_stdin();
+		mod = new_module_from_stdin("> ");
 		res = parse_module(mod);
                 delete_module(mod);
                 printf("\n");
@@ -20,9 +20,15 @@ main(int argc, char **argv)
 	}
 
 	for (i = 1; i < argc; i++) {
-		mod = new_module_from_file(argv[i]);
+                FILE *f = fopen(argv[i], "r");
+                if(f == NULL) {
+                    fprintf(stderr, "Error opening '%s'\n", argv[i]);
+                    break;
+                }
+		mod = new_module_from_file(f);
 		res = parse_module(mod);
                 delete_module(mod);
+                fclose(f);
 		if (res != 0 ) {
 			return res;
 		}
