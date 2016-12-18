@@ -12,12 +12,26 @@
 size_t read_next(module *, char *, size_t);
 %}
 
-id     [a-zA-Z][a-zA-Z_0-9]*
-int    [0-9]+
-blank  [ \t]
-string \"[^\"\n]*\"
+%x COMMENT
+
+U      [\x80-\xbf]
+UALPHA   [A-Za-z]|\xc2[\x80-\x84\x86-\x9f\xa1-\xbf]|[\xc3-\xdf]{U}|[\xe0-\xe1]{U}{U}|[\xe3-\xef]{U}{U}|\xe2(\x80[\x8b-\xad\xb0-\xbf]|\x81[\x80-\x9e\xa0-\xbf]|[\x82-\xbf]{U})
+INFIX   [_#'`.+*/%$~^&@|<>=!:-]
+SPECIAL [_#?'`]
+NAME_END [0-9]|{SPECIAL}|{UALPHA}
+
+EXP      ([Ee][-+]?[0-9]+)
+
+id     (({UALPHA}|{SPECIAL})({NAME_END})*|{INFIX}+)
+oct    0[0-7]*
+int    [1-9][0-9]*
+hex    0[Xx][0-9a-fA-F]+
+blank  ([ \t\x0b-\x0d]|\xc2[\x85\xa0]|\xe2(\x80[\x80-\x8a\xaf]|\x81\x9f))
+string \"([^"\\]|\\['"?\\abfnrtv]|\\[0-7]{1,3}|\\[Xx][0-9a-fA-F]+)*\"
 
 %%
+
+"/*"       { BEGIN(COMMENT); }
 
 {blank}+ |
 [\n\0]+   {}
@@ -25,12 +39,28 @@ string \"[^\"\n]*\"
 "(" |
 ")"        { return yytext[0]; }
 
-{int}      { yylval->NUMBER = atol(yytext); return NUMBER; }
+{oct}      { char *end; yylval->NUMBER = strtol(yytext, &end, 8);
+             return NUMBER; }
+{int}      { char *end; yylval->NUMBER = strtol(yytext, &end, 10);
+             return NUMBER; }
+{hex}      { char *end; yylval->NUMBER = strtol(yytext+2, &end, 16);
+             return NUMBER; }
+
+[0-9]*\.[0-9]+{EXP}?[flFL]? |
+[0-9]+{EXP}[flFL]? |
+0[Xx]([0-9a-fA-F]*\.[0-9a-fA-F]+|[0-9a-fA-F]+\.?)[Pp][-+]?[0-9]+[flFL]? {
+             yylval->NUMBER = 1; return NUMBER; }
 
 {id}       { yylval->IDENTIFIER = yytext; return IDENTIFIER; }
 {string}   { yylval->STRING = yytext; return STRING; }
 
 <<EOF>>    { return TOK_EOF; }
+
+<COMMENT>"*/"   { BEGIN(INITIAL); }
+<COMMENT><<EOF>>        { printf("Unterminated comment\n");
+                          return TOK_EOF; }
+<COMMENT>[^/]   {}
+<COMMENT>\/[^*] {}
 
 %%
 
@@ -66,7 +96,6 @@ size_t read_next(module *mod, char *buf, size_t max_size) {
           memcpy(buf, mod->pos, ret);
           mod->pos   += ret;
           mod->avail -= ret;
-          printf("read_next: %ld\n", ret);
       } else {
           ret = YY_NULL;
       }

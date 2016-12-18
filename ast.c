@@ -55,8 +55,7 @@ new_atom_node(enum atom_types type, void *v)
 	switch (type) {
 		case AT_IDENTIFIER:
 		case AT_STRING:
-			node->value.string = (char *) malloc(strlen((char *) v)+1);
-			strcpy(node->value.string, (char *) v);
+			node->value.string = strdup(v);
 			break;
 		case AT_NUMBER:
 			node->value.number = *((long *) v);

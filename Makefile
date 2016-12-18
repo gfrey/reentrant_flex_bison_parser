@@ -1,6 +1,6 @@
 .PHONY: clean mem
 
-CC := clang
+CC := gcc
 CFLAGS := -g $(shell pkg-config --cflags libedit)
 LDFLAGS := $(shell pkg-config --libs libedit)
 
