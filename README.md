@@ -1,45 +1,43 @@
 # Reentrant lex/bison parser
 
-This is an example reentrant lex/bison parser creating an abstract syntax tree.
+This is an example reentrant flex/bison parser creating an abstract syntax tree
+and working with readline.  It is difficult to find full examples
+of the trifecta: reentrant/flex/bison/readline all together.
 Most of the problems while building this were related to the weird
 documentation of lex and bison (all that legacy stuff ...).
 
-This is working in a sense that it might well be suitable as a blueprint for
-starting such endeavours. Please send me a note if you find a major problem
+This is working blueprint for using these tools in modern compiler
+projects. Please send me a note if you find a major problem
 with this.
-
-_Disclaimer_: I haven't done a lot of C/C++ in the last recent years, so this
-most probably has lots of non idiomatic stuff in it.
-
 
 ## What to use this for?
 
-This could be used as syntax tree for integration with an LLVM backend, for
-example. I didn't follow this path as learning everything necessary about LLVM
-is not something I currently want to do.
+The parser could be used to give your program an interpreter
+(or multiple different interpreters).  It accepts input
+from strings, files, or interactively with libedit (editline
+re-imagination of readline interface).
 
 
 ## Why not use C++?
 
-I tried, but C++ support in lex/bison is pretty rough. I failed to properly use
-the variants stuff they integrated. I looked into boost/spirit when having
-trouble with this but compilation times of more than 10 seconds for a minimal
-example is nothing I want to handle any more.
-
-And C++ anyway. I remember so many pitfalls from back in the day when I used
-this language, that I fear every single step leading to disaster.
+C++ has its own set of parsers, including boost/spirit
+and better antlr support.  Even fstream makes parsing
+relatively easy in C++.  This example is for people who
+do things the hard way (but are wise enough to start
+from a minimum working example).
 
 
 ## Running it
 
-The provided Makefile relies on llvm, flex and bison being installed. The
-following will compile and run the code:
+The provided Makefile relies on flex, bison, and libedit being installed.
+The following will compile and run the interactive interpreter:
 
 	make
 	./run
 
 There is an additional target for running this through valgrind (use `make
 mem`) which helps to find memory leaks.
+Any arguments will be treated as filenames to parse without interaction.
 
 Please note this requires bison version 3.0.2 at least (this introduced the
 union stuff). But there is a bug (fixed in version 3.0.3) that will create
@@ -54,7 +52,7 @@ There are many resources to be taken into account:
 * http://www.gnu.org/software/bison/manual
 * http://epaperpress.com/lexandyacc/index.html
 * http://gnuu.org/2009/09/18/writing-your-own-toy-compiler/
-
+* http://www.phpcompiler.org/articles/reentrantparser.html
 
 ## Todo
 
@@ -65,6 +63,7 @@ This should be easily possible using other examples on the net.
 ## License
 
 Copyright (c) 2015, Gereon Frey
+Copyright (c) 2016, David M. Rogers
 
 All rights reserved.
 

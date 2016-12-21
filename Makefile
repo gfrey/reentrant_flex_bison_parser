@@ -1,21 +1,22 @@
 .PHONY: clean mem
 
-CC := clang
-CFLAGS := -g
+CC := gcc
+CFLAGS := -g $(shell pkg-config --cflags libedit)
+LDFLAGS := $(shell pkg-config --libs libedit)
 
-run: parser.tab.o scanner.o ast.o module.o main.o
-	$(CC) -g -o $@ $+
+run: my_parser.o my_scanner.o ast.o module.o main.o
+	$(CC) -g -o $@ $+ $(LDFLAGS)
 
 mem:
 	valgrind --leak-check=full ./run
 
 clean:
-	rm -f run *.o parser.tab* scanner.[ch]
+	rm -f run *.o my_parser.[ch] my_scanner.[ch]
 
-parser.tab.o: scanner.c
+my_parser.o: my_scanner.c
 
-scanner.c: scanner.l
-	flex --header-file=scanner.h --outfile=scanner.c scanner.l
+my_scanner.c: my_scanner.l
+	flex -P my_ --header-file=my_scanner.h -o $@ $^
 
-parser.tab.c: parser.y
-	bison -d parser.y
+my_parser.c: my_parser.y
+	bison -d -p my_ -o $@ $^

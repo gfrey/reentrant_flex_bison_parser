@@ -30,6 +30,8 @@ add_node_to_list(ast_node_list *list, ast_node_sexp *node)
 {
 	if (list->length == list->capacity) {
 		// TODO should allocate some more space
+                printf("Out of space.\n");
+                exit(1);
 	}
 	list->list[list->length] = node;
 	list->length++;
@@ -53,8 +55,7 @@ new_atom_node(enum atom_types type, void *v)
 	switch (type) {
 		case AT_IDENTIFIER:
 		case AT_STRING:
-			node->value.string = (char *) malloc(strlen((char *) v)+1);
-			strcpy(node->value.string, (char *) v);
+			node->value.string = strdup(v);
 			break;
 		case AT_NUMBER:
 			node->value.number = *((long *) v);
